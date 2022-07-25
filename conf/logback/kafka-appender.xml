@@ -1,0 +1,58 @@
+<included>
+
+    <!-- This example configuration is probably most unreliable under
+    failure conditions but wont block your application at all -->
+    <appender name="kafkaAppender" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <version>2</version>
+            <customFields>
+                {
+                "env":"${PLATFORM_ENVIRONMENT:--}",
+                "hostname":"${HOSTNAME:--}",
+                "node": "${NODE_NAME:--}",
+                "application": "${APPLICATION_NAME:--}"
+                }
+            </customFields>
+            <shortenedLoggerNameLength>36</shortenedLoggerNameLength>
+            <includeContext>false</includeContext>
+
+            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <!-- The default mask string can optionally be specified by <defaultMask>.
+                           When the default mask string is not specified, **** is used.
+                        -->
+                <defaultMask>****</defaultMask>
+                <paths>cpf,usercpf</paths>
+
+            </jsonGeneratorDecorator>
+
+        </encoder>
+        <!-- RP_APP_NAME is given by RP in the prod environment -->
+        <topic>${KAFKA_TOPIC_LOGS}</topic>
+        <!-- we don't care how the log messages will be partitioned  -->
+        <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.NoKeyKeyingStrategy"/>
+
+        <!-- use async delivery. the application threads are not blocked by logging -->
+        <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy"/>
+
+        <!-- each <producerConfig> translates to regular kafka-client config (format: key=value) -->
+        <!-- producer configs are documented here: https://kafka.apache.org/documentation.html#newproducerconfigs -->
+        <!-- bootstrap.servers is the only mandatory producerConfig -->
+        <!-- lagom.broker.kafka.brokers is given in the production environment -->
+        <producerConfig>bootstrap.servers=${KAFKA_BROKERS}</producerConfig>
+        <!-- don't wait for a broker to ack the reception of a batch.  -->
+        <producerConfig>acks=0</producerConfig>
+        <!-- wait up to 1000ms and collect log messages before sending them as a batch -->
+        <producerConfig>linger.ms=1000</producerConfig>
+        <!-- even if the producer buffer runs full, do not block the application but start to drop messages -->
+        <producerConfig>max.block.ms=0</producerConfig>
+        <!-- define a client-id that you use to identify yourself against the kafka broker -->
+        <producerConfig>client.id=${HOSTNAME}-${CONTEXT_NAME}-logback-relaxed</producerConfig>
+        <!-- this is the fallback appender if kafka is not available. -->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+    </appender>
+
+    <appender name="asyncKafkaAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="kafkaAppender"/>
+    </appender>
+
+</included>

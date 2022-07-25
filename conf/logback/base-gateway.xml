@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+    <include resource="logback/base.xml" />
+
+    <logger name="play" level="INFO" />
+    <logger name="application" level="INFO" />
+
+    <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
+    <!-- https://hibernate.atlassian.net/browse/HV-1323 -->
+    <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator" level="ERROR" />
+
+    <!-- LoggerFilter Configuration -->
+    <!-- <logger name="request" level="INFO" />-->
+    <!-- <logger name="response" level="INFO" />-->
+    <!-- <logger name="error" level="ERROR"/>-->
+    <!-- <logger name="warn" level="WARN"/>-->
+
+    <!-- <logger name="com.lightbend.lagom" level="INFO" /> -->
+    <logger name="com.datastax.driver" level="ERROR" />
+    <!-- Akka Logger Configuration -->
+    <!-- <logger name="akka" level="INFO" />-->
+
+</included>

@@ -1,0 +1,102 @@
+# This file is a template, and might need editing before it works on your project.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Scala.gitlab-ci.yml
+
+# Official OpenJDK Java image. Look for the different tagged releases at
+# https://hub.docker.com/_/openjdk/ . A Java image is not required
+
+variables:
+  APP_BASE_PATH: /home/ubuntu/app-data
+  DEPLOY_BASE_PATH: $APP_BASE_PATH/deploy
+  COURSIER_CACHE: $APP_BASE_PATH/cache/coursier
+
+cache:
+  key: $CI_COMMIT_BRANCH
+  paths:
+    - target
+    - project/target
+    - project/project/target
+    - cache
+
+.prepare_publish:
+  before_script:
+    - apk update -q
+    # Install JDK
+    - apk add openjdk11 -q
+    # Add keyserver for SBT
+    - export PATH="/usr/local/sbt/bin:/usr/local/bin:$PATH"
+    - apk update && apk add ca-certificates wget tar bash
+    - mkdir -p "/usr/local/sbt"
+    - wget -qO - --no-check-certificate "https://github.com/sbt/sbt/releases/download/v1.5.8/sbt-1.5.8.tgz" | tar xz -C /usr/local/sbt --strip-components=1
+    - wget -qO - --no-check-certificate "https://github.com/zmwangx/ets/releases/download/v0.2.1/ets_0.2.1_linux_amd64.tar.gz" | tar -xz -C /usr/local/bin
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+.deploy_base:
+  cache: []
+  image: docker:latest
+  before_script:
+    - apk update && apk add ca-certificates openssh openssh-client
+    - echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+  script:
+    - echo "$AWS_KEY" | tr -d '\r' > ~/aws.pem
+    - chmod 400 ~/aws.pem
+    - mkdir ~/.ssh
+    - touch ~/.ssh/known_hosts
+    - whoami
+    - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo rm -r $APP_BASE_PATH
+    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP git clone --branch $BRANCH $CI_REPOSITORY_URL $APP_BASE_PATH
+    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker pull $CI_REGISTRY/$CI_PROJECT_PATH/rebates-platform:$IMAGE_TAG
+    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker compose -f $DEPLOY_BASE_PATH/docker-compose.yml --env-file $DEPLOY_BASE_PATH/$ENV_FILE up -d
+
+publish_dev:
+  extends:
+    - .prepare_publish
+  image: docker:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+  script:
+    - export ENVIRONMENT="dev"
+    - ets -s -f '[%T.%L]' sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/ test docker:publish
+
+publish_stage:
+  extends:
+    - .prepare_publish
+  image: docker:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stage"
+  script:
+    - export ENVIRONMENT="stage"
+    - ets -s -f '[%T.%L]' sbt test docker:publish
+
+#deploy_dev:
+#  image: docker:latest
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == "develop"
+#  variables:
+#    AWS_KEY: $IDEOS_AWS_KEY
+#    SERVER_IP: $DEPLOYMENT_SERVER_IP
+#    BRANCH: develop
+#    IMAGE_TAG: dev-latest
+#    ENV_FILE: .env
+#  extends:
+#    - .deploy_base
+#  needs:
+#    - job: publish_dev
+#
+#deploy_stage:
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == "stage"
+#  variables:
+#    AWS_KEY: $PARTECH_AWS_KEY
+#    SERVER_IP: $DEPLOYMENT_STAGE_SERVER_IP
+#    BRANCH: stage
+#    IMAGE_TAG: stage-latest
+#    ENV_FILE: .env.stage
+#  extends:
+#    - .deploy_base
+#  needs:
+#    - job: publish_stage

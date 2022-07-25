@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+    <include resource="br/gov/senasp/sinesp/commons/logging/logback/base.xml" />
+
+    <logger name="br.gov.senasp.sinesp.commons" level="INFO" />
+
+    <logger name="com.lightbend.lagom" level="INFO" />
+    <logger name="com.datastax.driver" level="ERROR" />
+    <!-- Akka Logger Configuration -->
+    <logger name="akka" level="INFO" />
+
+    <!--Uncomment following lines if you want debug mongo connections-->
+    <!--<logger name="reactivemongo" level="DEBUG" />-->
+    <!--<logger name="play.modules.reactivemongo" level="DEBUG" />-->
+</included>

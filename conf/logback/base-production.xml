@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+    <include resource="br/gov/senasp/sinesp/commons/logging/logback/defaults.xml"/>
+    <include resource="br/gov/senasp/sinesp/commons/logging/logback/console-appender.xml" />
+    <include resource="br/gov/senasp/sinesp/commons/logging/logback/kafka-appender.xml"/>
+
+    <logger name="play" level="INFO"/>
+    <logger name="application" level="INFO"/>
+
+    <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF"/>
+    <!-- https://hibernate.atlassian.net/browse/HV-1323 -->
+    <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator" level="ERROR"/>
+
+    <!-- LoggerFilter Configuration -->
+    <logger name="request" level="INFO"/>
+    <logger name="response" level="INFO"/>
+    <logger name="error" level="ERROR"/>
+    <logger name="warn" level="WARN"/>
+
+    <!-- Akka Logger Configuration -->
+    <logger name="akka" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="asyncKafkaAppender"/>
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </root>
+
+</included>

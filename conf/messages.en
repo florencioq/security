@@ -1,0 +1,18 @@
+# https://www.playframework.com/documentation/latest/ScalaI18N
+
+repository.exceptions.uniqueConstraintViolated=You cannot save repeated data on database
+repository.exceptions.foreignKeyViolated=You cannot link data that do not exist on database
+
+exceptions.invalidCredentials=Invalid credentials
+exceptions.tokenNotFound=Access token not found
+exceptions.tokenNotFromApp=Access token is not from the required application
+exceptions.userNotFound=User not found
+exceptions.userDisabled=Your user was disabled on the platform, for more info talk to your manager
+exceptions.userAlreadyExists=User already exists
+exceptions.insufficientPermissions=You don't have the required permissions to access this functionality
+exceptions.wrongOldPassword=Your old password doesn't match
+exceptions.redefinitionIdUsed=Password was already redefined
+exceptions.adminsCantBeDisabled=Admins can't be disabled
+exceptions.userNotAllowedInApp=User is not allowed to access this application
+exceptions.appNotFound=Application not found
+exceptions.appUrlNotFound=No application webapp URL registered

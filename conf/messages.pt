@@ -1,0 +1,18 @@
+# https://www.playframework.com/documentation/latest/ScalaI18N
+
+repository.exceptions.uniqueConstraintViolated=Não é possível salvar informações repetidas na base de dados
+repository.exceptions.foreignKeyViolated=Não é possível relacionar informações que não existem na base de dados
+
+exceptions.invalidCredentials=Credenciais inválidas
+exceptions.tokenNotFound=Token de acesso não encontrado
+exceptions.tokenNotFromApp=Token de acesso não pertence a aplicação
+exceptions.userNotFound=Usuário não encontrado
+exceptions.userDisabled=Seu usuário foi desabilitado na plataforma, para mais informações fale com seu gerente
+exceptions.userAlreadyExists=Usuário já existe
+exceptions.insufficientPermissions=Você não possui as permissões necessárias para acessar essa funcionalidade
+exceptions.wrongOldPassword=Sua senha antiga não confere
+exceptions.redefinitionIdUsed=A senha já foi redefinida
+exceptions.adminsCantBeDisabled=Administradores não podem ser desabilitados
+exceptions.userNotAllowedInApp=O usuário não possui permissão para acessar essa aplicação
+exceptions.appNotFound=Aplicação não encontrada
+exceptions.appUrlNotFound=Url do webapp da aplicação não cadastrado

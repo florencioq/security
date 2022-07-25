@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<included>
+    <!-- Layout padrao utilizado para escrever no Kafka -->
+    <!-- <property name="LAYOUT_KAFKA_PATTERN"-->
+    <!--           value="${LAYOUT_DEFAULT_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${PLATFORM_ENVIRONMENT:- } %5p ${HOSTNAME:- } [%t] -&#45;&#45; %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}}}"/>-->
+
+    <!-- Layout padrao utilizado para console -->
+    <property name="LAYOUT_CONSOLE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %coloredLevel %5p [%t] --- %-40.40logger{39} - %message%n%xException{20}"/>
+
+
+<!--    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+<!--    <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />-->
+<!--    <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />-->
+<!--    <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />-->
+<!--    <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />-->
+<!--    <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG" />-->
+
+</included>
