@@ -1,55 +1,10 @@
-import Dependencies.{playTest, _}
-import play.sbt.routes.RoutesKeys.routesImport
+Global / organization := "br.com.ideos"
+Global / scalaVersion := "2.13.7"
 
-name := """security"""
-organization := "ideos"
-scalaVersion := "2.13.7"
+lazy val securityApi = project in file("api")
 
-val buildSettings = Seq(
-  version := "0.1.0",
-  buildInfoKeys := Seq[BuildInfoKey](version, scalaVersion),
-  buildInfoPackage := "br.com.ideos.security"
-)
+lazy val securityLib = project in file("lib")
 
-libraryDependencies ++= Seq(
-  postgresql,
-  slick,
-  slickHikari,
-  playJson,
-  macwire,
-  scalaJwt,
-  scalaBcrypt,
-  scaldiPlay,
-  playTest,
-  logbackLogstash,
-  jackson,
-  swaggerUI,
-  webjarLocator,
-  dockerClient,
-  mailer,
-  mailerGuice,
-  scalatest
-)
+lazy val security = (project in file(".")).aggregate(securityApi, securityLib)
 
-swaggerV3 := true
-swaggerDomainNameSpaces := Seq("br.com.ideos.security.models")
-
-lazy val security = (project in file("."))
-  .settings(buildSettings)
-  .enablePlugins(
-    PlayScala,
-    BuildInfoPlugin,
-    FlywayPlugin,
-    SbtTwirl,
-    JavaAgent,
-    SwaggerPlugin,
-    DockerPlugin
-  )
-  .settings(
-    routesImport ++= Seq(
-      "br.com.ideos.security.models.queryparams.Pagination",
-      "br.com.ideos.security.models.queryparams.QueryOptions",
-      "br.com.ideos.security.models.queryparams.QueryOptions._",
-      "java.time.LocalDate",
-    )
-  )
+run := (securityApi / run).evaluated

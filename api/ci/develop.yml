@@ -1,0 +1,7 @@
+variables:
+  ENVIRONMENT: dev
+  AWS_KEY: $IDEOS_AWS_KEY
+  SERVER_IP: $DEPLOYMENT_SERVER_IP
+  BRANCH: develop
+  IMAGE_TAG: dev-latest
+  ENV_FILE: .env

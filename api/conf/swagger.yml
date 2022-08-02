@@ -1,0 +1,17 @@
+---
+openapi: 3.0.0
+info:
+  title: "Security API"
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+servers:
+  - url: https://partech-api.ideos.com.br/api
+    description: Production server
+  - url: http://localhost:9000/api
+    description: Development server
+security:
+  - bearerAuth: []
