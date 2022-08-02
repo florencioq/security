@@ -10,7 +10,7 @@ publish_lib:
       - project/*
       - lib/**/*
   script:
-    - sbt publish
+    - sbt "securityLib / publish"
   cache:
     key: $CI_COMMIT_BRANCH
     paths:
