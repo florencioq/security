@@ -5,11 +5,12 @@ publish_lib:
       - develop
       - stage
     changes:
+      - *
       - deploy/*
       - project/*
       - lib/**/*
   script:
-    - sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/ publish
+    - sbt publish
   cache:
     key: $CI_COMMIT_BRANCH
     paths:
@@ -17,4 +18,3 @@ publish_lib:
       - project/target
       - project/project/target
       - lib/target
-      - cache

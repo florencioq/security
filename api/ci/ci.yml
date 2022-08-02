@@ -17,14 +17,8 @@ variables:
 .base:
   image: docker:latest
   only:
-    refs:
-      - develop
-      - stage
-    changes:
-      - deploy/*
-      - project/*
-      - lib/**/*
-      - api/**/*
+    - develop
+    - stage
   cache:
     key: $CI_COMMIT_BRANCH
     paths:
