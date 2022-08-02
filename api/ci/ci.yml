@@ -70,4 +70,4 @@ deploy_api:
     - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker pull $CI_REGISTRY/$CI_PROJECT_PATH/rebates-platform:$IMAGE_TAG
     - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker compose -f $DEPLOY_BASE_PATH/docker-compose.yml --env-file $DEPLOY_BASE_PATH/$ENV_FILE up -d
   needs:
-    - job: publish
+    - job: publish_api
