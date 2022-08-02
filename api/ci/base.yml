@@ -7,7 +7,7 @@
 # Official OpenJDK Java image. Look for the different tagged releases at
 # https://hub.docker.com/_/openjdk/ . A Java image is not required
 
-include: './$CI_COMMIT_REF_SLUG.yml'
+include: '/api/ci/$CI_COMMIT_REF_SLUG.yml'
 
 variables:
   APP_BASE_PATH: /home/ubuntu/app-data/api
