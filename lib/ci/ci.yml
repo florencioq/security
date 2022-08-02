@@ -5,7 +5,7 @@ publish_lib:
       - develop
       - stage
     changes:
-      - *
+      - ./*
       - deploy/*
       - project/*
       - lib/**/*
