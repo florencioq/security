@@ -9,13 +9,13 @@ cache:
 
 publish:
   image: hseeberger/scala-sbt:graalvm-ce-21.3.0-java11_1.6.2_3.1.1
-    only:
-      refs:
-        - develop
-        - stage
-      changes:
-        - deploy/*
-        - project/*
-        - lib/**/*
+  only:
+    refs:
+      - develop
+      - stage
+    changes:
+      - deploy/*
+      - project/*
+      - lib/**/*
   script:
     - sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/ publish
