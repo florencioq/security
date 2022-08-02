@@ -14,15 +14,6 @@ variables:
   DEPLOY_BASE_PATH: $APP_BASE_PATH/deploy
   COURSIER_CACHE: $APP_BASE_PATH/cache/coursier
 
-cache:
-  key: $CI_COMMIT_BRANCH
-  paths:
-    - target
-    - project/target
-    - project/project/target
-    - api/target
-    - cache
-
 .base:
   image: docker:latest
   only:
@@ -34,8 +25,16 @@ cache:
       - project/*
       - lib/**/*
       - api/**/*
+  cache:
+    key: $CI_COMMIT_BRANCH
+    paths:
+      - target
+      - project/target
+      - project/project/target
+      - api/target
+      - cache
 
-publish:
+publish_api:
   extends:
     - .base
   before_script:
@@ -52,7 +51,7 @@ publish:
   script:
     - ets -s -f '[%T.%L]' sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/ test docker:publish
 
-deploy:
+deploy_api:
   extends:
     - .base
   before_script:

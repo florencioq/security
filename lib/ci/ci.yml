@@ -1,13 +1,4 @@
-cache:
-  key: $CI_COMMIT_BRANCH
-  paths:
-    - target
-    - project/target
-    - project/project/target
-    - lib/target
-    - cache
-
-publish:
+publish_lib:
   image: hseeberger/scala-sbt:graalvm-ce-21.3.0-java11_1.6.2_3.1.1
   only:
     refs:
@@ -19,3 +10,11 @@ publish:
       - lib/**/*
   script:
     - sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/ publish
+  cache:
+    key: $CI_COMMIT_BRANCH
+    paths:
+      - target
+      - project/target
+      - project/project/target
+      - lib/target
+      - cache
