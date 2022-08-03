@@ -1,19 +1,20 @@
-package br.com.ideos.libs.security.actions
+package br.com.ideos.libs.security
 
-import br.com.ideos.libs.security.actions.PermissionRules.{IsAdmin, IsManager, OneOf, PermissionRule}
+import br.com.ideos.libs.security.PermissionRules.{IsAdmin, IsManager, OneOf, PermissionRule}
 import br.com.ideos.libs.security.model.requests.{AuthenticatedRequest, GrantRequest, InvitationAcceptanceRequest, PasswordRedefinitionRequest}
 import play.api.Configuration
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, AnyContent, ControllerComponents}
+import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
 
 import scala.concurrent.ExecutionContext
 
 class Actions(
   val config: Configuration,
-  val cc: ControllerComponents
+  val tokenValidator: TokenValidator,
+  val defaultActionBuilder: DefaultActionBuilder,
 )(implicit ec: ExecutionContext, messagesApi: MessagesApi) {
 
-  private val ValidTokenAction = cc.actionBuilder andThen ValidTokenActionRefiner(config)
+  private val ValidTokenAction = defaultActionBuilder andThen ValidTokenActionRefiner(config, tokenValidator)
 
   val GrantAction: ActionBuilder[GrantRequest, AnyContent] =
     ValidTokenAction andThen GrantActionRefiner()

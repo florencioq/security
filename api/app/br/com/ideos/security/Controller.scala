@@ -1,6 +1,6 @@
 package br.com.ideos.security
 
-import br.com.ideos.libs.security.actions.Actions
+import br.com.ideos.libs.security.Actions
 import br.com.ideos.security.exceptions.{AccessTokenNotFromAppException, AppUrlNotFoundException}
 import br.com.ideos.security.model.queryparams.Pagination
 import br.com.ideos.security.model.{LoginForm, PasswordDefinitionPayload, PasswordUpdatePayload, PermissionUpdatePayload}

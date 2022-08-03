@@ -1,4 +1,4 @@
-package br.com.ideos.libs.security.utils
+package br.com.ideos.security.core
 
 import br.com.ideos.libs.security.model.tokens.TokenPayload
 import com.typesafe.config.ConfigFactory

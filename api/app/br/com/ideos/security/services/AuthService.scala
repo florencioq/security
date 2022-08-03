@@ -2,7 +2,7 @@ package br.com.ideos.security.services
 
 import br.com.ideos.libs.security.exceptions.{DefaultApiException, InvalidCredentialsException}
 import br.com.ideos.libs.security.model.tokens.{AccessTokenPayload, GrantPayload, InvitationTokenPayload, PasswordRedefinitionTokenPayload}
-import br.com.ideos.libs.security.utils.JwtUtils
+import br.com.ideos.security.core.JwtUtils
 import br.com.ideos.security.exceptions._
 import br.com.ideos.security.model._
 import br.com.ideos.security.model.queryparams.{Paginated, Pagination}

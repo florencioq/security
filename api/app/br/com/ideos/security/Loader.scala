@@ -1,7 +1,8 @@
 package br.com.ideos.security
 
 import akka.actor.ActorSystem
-import br.com.ideos.libs.security.actions.Actions
+import br.com.ideos.libs.security.{Actions, TokenValidator}
+import br.com.ideos.security.core.SecurityTokenValidator
 import br.com.ideos.security.repository.{AuthRepository, AuthRepositoryImpl}
 import br.com.ideos.security.services.{AuthService, EmailService}
 import br.com.ideos.security.utils.logging.{LoggerFilter, LoggerTransformer}
@@ -59,6 +60,7 @@ class ApplicationModule(ctx: Context)
   }
 
   lazy val actions: Actions = wire[Actions]
+  lazy val tokenValidator: TokenValidator = wire[SecurityTokenValidator]
 
   lazy val controller: Controller = wire[Controller]
   lazy val docsController: DocsController = wire[DocsController]
