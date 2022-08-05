@@ -11,10 +11,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SecureWebsockets(val tokenValidator: TokenValidator)(implicit ec: ExecutionContext) {
 
-  private type WSReqBlock[In, Out] = (RequestHeader, AccessTokenPayload) => Future[Either[Result, Flow[In, Out, _]]]
-
   private def AuthWebsocket[In, Out](
-    block: WSReqBlock[In, Out]
+    block: (RequestHeader, AccessTokenPayload) => Future[Either[Result, Flow[In, Out, _]]]
   )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = WebSocket.acceptOrResult { req =>
     for {
       payload <- tokenValidator.validateToken(req.requiredToken)
@@ -26,29 +24,34 @@ class SecureWebsockets(val tokenValidator: TokenValidator)(implicit ec: Executio
     } yield out
   }
 
-  def RestrictedWebsocket[In, Out](rule: PermissionRule)(
-    block: WSReqBlock[In, Out]
-  )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = AuthWebsocket[In, Out] { (req, payload) =>
-    if (payload.isAdmin || rule(payload)) block(req, payload)
-    else throw InsufficientPermissionsException()
+  class RestrictedWebsocket(rule: PermissionRule) {
+
+    def apply[In, Out](
+      f: RequestHeader => Flow[In, Out, _]
+    )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = accept(f)
+
+    def accept[In, Out](
+      f: RequestHeader => Flow[In, Out, _]
+    )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = {
+      acceptOrResult(f.andThen(flow => Future.successful(Right(flow))))
+    }
+
+    def acceptOrResult[In, Out](
+      f: RequestHeader => Future[Either[Result, Flow[In, Out, _]]]
+    )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = {
+      AuthWebsocket[In, Out] { (req, payload) =>
+        if (payload.isAdmin || rule(payload)) f(req)
+        else throw InsufficientPermissionsException()
+      }
+    }
   }
 
-  def RestrictedWebsocket[In, Out](permission: String)(
-    block: WSReqBlock[In, Out]
-  )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = {
-    RestrictedWebsocket[In, Out](OneOf(permission))(block)
+  object RestrictedWebsocket {
+    def apply(rule: PermissionRule): RestrictedWebsocket = new RestrictedWebsocket(rule)
+    def apply(permissions: String*): RestrictedWebsocket = new RestrictedWebsocket(OneOf(permissions:_*))
   }
 
-  def AdminWebsocket[In, Out](
-    block: WSReqBlock[In, Out]
-  )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = {
-    RestrictedWebsocket[In, Out](IsAdmin)(block)
-  }
-
-  def ManagerWebsocket[In, Out](
-    block: WSReqBlock[In, Out]
-  )(implicit transformer: MessageFlowTransformer[In, Out]): WebSocket = {
-    RestrictedWebsocket[In, Out](IsManager)(block)
-  }
+  val AdminWebsocket: RestrictedWebsocket = RestrictedWebsocket(IsAdmin)
+  val ManagerWebsocket: RestrictedWebsocket = RestrictedWebsocket(IsManager)
 
 }

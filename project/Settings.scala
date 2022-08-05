@@ -2,6 +2,7 @@ import com.typesafe.sbt.packager.Keys.maintainer
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport._
 import com.typesafe.sbt.packager.docker.{Cmd, DockerChmodType, DockerPermissionStrategy}
 import io.github.davidmweber.FlywayPlugin.autoImport.{flywayDriver, flywayLocations, flywayPassword, flywayUrl, flywayUser}
+import sbt.Def
 import sbt.Keys.version
 
 object Settings {
@@ -39,7 +40,7 @@ object Settings {
     }
   )
 
-  val flywaySettings = Seq(
+  val flywaySettings: Seq[Def.Setting[_]] = Seq(
     flywayDriver := "org.postgresql.Driver",
     flywayUrl := "jdbc:postgresql://localhost:5432/security",
     flywayUser := "postgres",
