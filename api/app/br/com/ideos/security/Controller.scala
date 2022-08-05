@@ -21,7 +21,7 @@ class Controller(
 
   import secureActions._
 
-  def login(): Action[LoginForm] = Action(parse.json[LoginForm]).async { implicit r =>
+  def login(): Action[LoginForm] = SimpleAction(parse.json[LoginForm]).async { implicit r =>
     authService.login(r.body).map(Ok(_))
   }
 
@@ -34,7 +34,7 @@ class Controller(
     Ok(r.payload)
   }
 
-  def forgotPassword(email: String, appKey: String): Action[AnyContent] = Action.async { implicit r =>
+  def forgotPassword(email: String, appKey: String): Action[AnyContent] = SimpleAction.async { implicit r =>
     for {
       token <- authService.getPasswordRedefinitionToken(email)
       app <- authService.getApp(appKey)

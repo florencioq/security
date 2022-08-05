@@ -6,7 +6,7 @@ lazy val securityLib = (project in file("."))
   .enablePlugins(JavaAgent)
   .settings(
     name := """security-lib""",
-    version := "0.4.0",
+    version := "0.4.1",
     libraryDependencies ++= Seq(
       scalaJwt,
       play,

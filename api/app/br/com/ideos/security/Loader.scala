@@ -5,7 +5,6 @@ import br.com.ideos.libs.security.{SecureActions, TokenValidator}
 import br.com.ideos.security.core.SecurityTokenValidator
 import br.com.ideos.security.repository.{AuthRepository, AuthRepositoryImpl}
 import br.com.ideos.security.services.{AuthService, EmailService}
-import br.com.ideos.security.utils.logging.{LoggerFilter, LoggerTransformer}
 import com.softwaremill.macwire.wire
 import com.typesafe.config.Config
 import controllers.AssetsComponents
@@ -46,11 +45,8 @@ class ApplicationModule(ctx: Context)
 
   implicit val messages: MessagesApi = messagesApi
 
-  def loggerTransformer: LoggerTransformer = wire[LoggerTransformer]
-  lazy val loggerFilter: LoggerFilter = wire[LoggerFilter]
-
   override def httpFilters: Seq[EssentialFilter] = super.httpFilters ++
-    Seq(corsFilter, securityHeadersFilter, loggerFilter)
+    Seq(corsFilter, securityHeadersFilter)
 
   implicit val appActorSystem: ActorSystem = actorSystem
 

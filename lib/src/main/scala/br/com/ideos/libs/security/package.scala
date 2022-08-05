@@ -1,14 +1,64 @@
 package br.com.ideos.libs
 
-import br.com.ideos.libs.security.exceptions.{AccessTokenNotFoundException, InsufficientPermissionsException, InvalidCredentialsException}
+import br.com.ideos.libs.security.exceptions.{AccessTokenNotFoundException, ApiException, I18nApiException, InsufficientPermissionsException, InvalidCredentialsException}
 import br.com.ideos.libs.security.model.requests._
 import br.com.ideos.libs.security.model.tokens.{AccessTokenPayload, GrantPayload, InvitationTokenPayload, PasswordRedefinitionTokenPayload}
+import org.slf4j.LoggerFactory
+import pdi.jwt.{Jwt, JwtOptions}
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.mvc.Http
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 package object security {
+
+  case class LoggingActionBuilder(
+    parser: BodyParser[AnyContent],
+    messagesApi: MessagesApi,
+  )(implicit ec: ExecutionContext)
+    extends ActionBuilder[Request, AnyContent] {
+
+    override protected def executionContext: ExecutionContext = ec
+
+    override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
+      implicit val messages: Messages = messagesApi.preferred(request)
+
+      val requestLogger = LoggerFactory.getLogger("request")
+      val responseLogger = LoggerFactory.getLogger("response")
+
+      val bodyFill = if (request.hasBody) s"body=${request.body.toString}" else ""
+
+      val userIdentifier = request.cleanToken
+        .map(Jwt.decodeRaw(_, JwtOptions(signature = false)))
+        .flatMap(_.toOption)
+        .flatMap(s => (Json.parse(s) \ "userId").toOption)
+        .map(id => s" <User: $id>")
+        .getOrElse("")
+
+      requestLogger.info(s"[${request.uri}]$userIdentifier $bodyFill")
+      val duration = System.currentTimeMillis()
+
+      block(request).andThen {
+        case Success(res) =>
+          responseLogger.info(s"[${request.uri}] ${res.asJava.status()}$userIdentifier (${calculateTime(duration)}ms)")
+        case Failure(exception) =>
+          val message = exception match {
+            case ex: ApiException => s"${ex.status}: ${ex.message}"
+            case ex: I18nApiException => s"${ex.status}: ${ex.toApiException.message}"
+            case ex: Throwable => ex.getMessage
+          }
+          responseLogger.error(s"[${request.uri}]$userIdentifier $message, $bodyFill (${calculateTime(duration)}ms)", exception)
+      }
+    }
+
+    private def calculateTime(begin: Long): Long = {
+      System.currentTimeMillis() - begin
+    }
+  }
+
   case class ValidTokenActionRefiner(tokenValidator: TokenValidator)(implicit ec: ExecutionContext)
     extends ActionRefiner[Request, ValidTokenRequest] {
 
@@ -89,11 +139,16 @@ package object security {
   }
 
   implicit class RichRequest(req: RequestHeader) {
-    def requiredToken: String = {
-      req.headers.get(Http.HeaderNames.AUTHORIZATION)
-        .orElse(req.getQueryString(Http.HeaderNames.AUTHORIZATION))
-        .getOrElse(throw AccessTokenNotFoundException())
+    def token: Option[String] = {
+      req.headers.get(Http.HeaderNames.AUTHORIZATION).orElse(req.getQueryString(Http.HeaderNames.AUTHORIZATION))
     }
+    def cleanToken: Option[String] = token.map { t =>
+      t.split(" ", 2) match {
+        case Array(_, tokenValue) => tokenValue
+        case _ => t
+      }
+    }
+    def requiredToken: String = token.getOrElse(throw AccessTokenNotFoundException())
   }
 
 }
