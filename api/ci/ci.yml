@@ -43,9 +43,7 @@ publish_api:
     - wget -qO - --no-check-certificate "https://github.com/zmwangx/ets/releases/download/v0.2.1/ets_0.2.1_linux_amd64.tar.gz" | tar -xz -C /usr/local/bin
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - ets -s -f '[%T.%L]' sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/
-    - securityApi / test
-    - securityApi / docker:publish
+    - ets -s -f '[%T.%L]' sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/ ";securityApi / test ;securityApi / docker:publish"
 
 deploy_api:
   extends:
