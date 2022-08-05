@@ -15,7 +15,7 @@ object Settings {
 
   val dockerSettings: Seq[sbt.Def.Setting[_]] = Seq(
     maintainer := "Ideos",
-    dockerRepository := Some("registry.gitlab.com/ideos.company/security"),
+    dockerRepository := Some("registry.gitlab.com/ideos_dev/security"),
     dockerBaseImage := baseImage,
     dockerExposedPorts := Seq(9000),
     dockerUpdateLatest := false,
