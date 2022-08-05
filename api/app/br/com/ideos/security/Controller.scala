@@ -1,6 +1,6 @@
 package br.com.ideos.security
 
-import br.com.ideos.libs.security.Actions
+import br.com.ideos.libs.security.SecureActions
 import br.com.ideos.security.exceptions.{AccessTokenNotFromAppException, AppUrlNotFoundException}
 import br.com.ideos.security.model.queryparams.Pagination
 import br.com.ideos.security.model.{LoginForm, PasswordDefinitionPayload, PasswordUpdatePayload, PermissionUpdatePayload}
@@ -13,12 +13,13 @@ import scala.concurrent.ExecutionContext
 class Controller(
   authService: AuthService,
   emailService: EmailService,
-  actions: Actions,
-  override val controllerComponents: ControllerComponents
+  cc: ControllerComponents,
+  secureActions: SecureActions,
 )(implicit ec: ExecutionContext)
-  extends AbstractController(controllerComponents) with I18nSupport {
+  extends AbstractController(cc)
+    with I18nSupport {
 
-  import actions._
+  import secureActions._
 
   def login(): Action[LoginForm] = Action(parse.json[LoginForm]).async { implicit r =>
     authService.login(r.body).map(Ok(_))

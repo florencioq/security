@@ -1,33 +1,26 @@
 package br.com.ideos.libs
 
-import br.com.ideos.libs.security.PermissionRules.PermissionRule
 import br.com.ideos.libs.security.exceptions.{AccessTokenNotFoundException, InsufficientPermissionsException, InvalidCredentialsException}
-import br.com.ideos.libs.security.model.requests.{AuthenticatedRequest, GrantRequest, InvitationAcceptanceRequest, PasswordRedefinitionRequest, ValidTokenRequest}
+import br.com.ideos.libs.security.model.requests._
 import br.com.ideos.libs.security.model.tokens.{AccessTokenPayload, GrantPayload, InvitationTokenPayload, PasswordRedefinitionTokenPayload}
-import play.api.Configuration
-import play.api.http.HeaderNames
-import play.api.mvc.{ActionFilter, ActionRefiner, Request, Result}
+import play.api.mvc._
+import play.mvc.Http
 
 import scala.concurrent.{ExecutionContext, Future}
 
 package object security {
-  case class ValidTokenActionRefiner(
-    config: Configuration,
-    tokenValidator: TokenValidator,
-  )(implicit ec: ExecutionContext) extends ActionRefiner[Request, ValidTokenRequest] {
+  case class ValidTokenActionRefiner(tokenValidator: TokenValidator)(implicit ec: ExecutionContext)
+    extends ActionRefiner[Request, ValidTokenRequest] {
 
     override protected def executionContext: ExecutionContext = ec
 
     override protected def refine[A](request: Request[A]): Future[Either[Result, ValidTokenRequest[A]]] = {
-      request.headers.get(HeaderNames.AUTHORIZATION) match {
-        case None => throw AccessTokenNotFoundException()
-        case Some(token) => tokenValidator
-          .validateToken(token)
-          .map { payload =>
-            Right(ValidTokenRequest(request, payload))
-          }
-          .recover { case ex => throw InvalidCredentialsException(Some(ex)) }
-      }
+      tokenValidator
+        .validateToken(request.requiredToken)
+        .map { payload =>
+          Right(ValidTokenRequest(request, payload))
+        }
+        .recover { case ex => throw InvalidCredentialsException(Some(ex)) }
     }
   }
 
@@ -95,14 +88,12 @@ package object security {
     }
   }
 
-  case class ManagerActionFilter()(implicit ec: ExecutionContext)
-    extends ActionFilter[AuthenticatedRequest] {
-
-    override protected def executionContext: ExecutionContext = ec
-
-    override protected def filter[A](request: AuthenticatedRequest[A]): Future[Option[Result]] = {
-      if (request.payload.isAdmin || request.payload.isManager) Future.successful(None)
-      else throw InsufficientPermissionsException()
+  implicit class RichRequest(req: RequestHeader) {
+    def requiredToken: String = {
+      req.headers.get(Http.HeaderNames.AUTHORIZATION)
+        .orElse(req.getQueryString(Http.HeaderNames.AUTHORIZATION))
+        .getOrElse(throw AccessTokenNotFoundException())
     }
   }
+
 }

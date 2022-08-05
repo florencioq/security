@@ -2,9 +2,13 @@ package br.com.ideos.libs.security
 
 import br.com.ideos.libs.security.model.tokens.AccessTokenPayload
 
-object PermissionRules {
-  type PermissionRule = AccessTokenPayload => Boolean
+trait PermissionRule extends (AccessTokenPayload => Boolean) {
+  def &(other: PermissionRule): PermissionRule = (userPerms: AccessTokenPayload) => this(userPerms) && other(userPerms)
 
+  def |(other: PermissionRule): PermissionRule = (userPerms: AccessTokenPayload) => this(userPerms) || other(userPerms)
+}
+
+object PermissionRule {
   def IsAdmin: PermissionRule = _.isAdmin
 
   def IsManager: PermissionRule = _.isManager
@@ -13,10 +17,4 @@ object PermissionRules {
 
   def OneOf(permissions: String*): PermissionRule = (userPerms: AccessTokenPayload) => permissions
     .exists(userPerms.roles.contains)
-
-  implicit class RuleUtils(rule: PermissionRule) {
-    def &(other: PermissionRule): PermissionRule = (userPerms: AccessTokenPayload) => rule(userPerms) && other(userPerms)
-
-    def |(other: PermissionRule): PermissionRule = (userPerms: AccessTokenPayload) => rule(userPerms) || other(userPerms)
-  }
 }
