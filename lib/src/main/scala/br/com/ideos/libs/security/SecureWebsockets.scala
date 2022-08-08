@@ -3,6 +3,7 @@ package br.com.ideos.libs.security
 import akka.stream.scaladsl.Flow
 import br.com.ideos.libs.security.PermissionRule.{IsAdmin, IsManager, OneOf}
 import br.com.ideos.libs.security.exceptions.{InsufficientPermissionsException, InvalidCredentialsException}
+import br.com.ideos.libs.security.functions.RichRequest
 import br.com.ideos.libs.security.model.tokens.AccessTokenPayload
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{RequestHeader, Result, WebSocket}

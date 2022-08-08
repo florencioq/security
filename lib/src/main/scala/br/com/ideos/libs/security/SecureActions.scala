@@ -1,6 +1,7 @@
 package br.com.ideos.libs.security
 
 import br.com.ideos.libs.security.PermissionRule.{IsAdmin, IsManager, OneOf}
+import br.com.ideos.libs.security.functions.{AuthActionRefiner, BaseActionBuilder, GrantActionRefiner, InvitationAcceptanceActionRefiner, LoggingActionFunction, PasswordRedefinitionActionRefiner, RestrictedActionFilter, ValidTokenActionRefiner}
 import br.com.ideos.libs.security.model.requests.{AuthenticatedRequest, GrantRequest, InvitationAcceptanceRequest, PasswordRedefinitionRequest}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request}
@@ -13,7 +14,7 @@ class SecureActions(
   val messagesApi: MessagesApi,
 )(implicit ec: ExecutionContext) {
 
-  val SimpleAction: ActionBuilder[Request, AnyContent] = LoggingActionBuilder(parsers, messagesApi)
+  val SimpleAction: ActionBuilder[Request, AnyContent] = BaseActionBuilder(parsers) andThen LoggingActionFunction(messagesApi)
 
   private val ValidTokenAction = SimpleAction andThen ValidTokenActionRefiner(tokenValidator)
 
