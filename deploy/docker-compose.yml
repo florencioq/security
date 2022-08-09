@@ -19,7 +19,7 @@ services:
       - db
 
   app:
-    image: registry.gitlab.com/ideos_dev/security/security-api:${PLATFORM_IMAGE_TAG}
+    image: registry.gitlab.com/ideos_dev/security/security-api:${IMAGE_TAG}
     ports:
       - "9000:9000"
     depends_on:
