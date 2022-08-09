@@ -9,7 +9,9 @@ case class UserInfo(
   email: String,
   createdAt: Instant,
   disabled: Boolean,
-)
+) {
+  def simple: SimpleUser = SimpleUser(id, email)
+}
 
 object UserInfo {
   implicit val format: Format[UserInfo] = Json.format

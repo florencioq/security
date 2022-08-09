@@ -10,6 +10,8 @@ trait AuthRepository {
 
   def listUsers(pagination: Pagination, appKey: String): Future[Paginated[UserInfo]]
 
+  def listUsers(ids: Seq[Long], appKey: String): Future[Seq[UserInfo]]
+
   def getUser(id: Long): Future[Option[User]]
 
   def getUserByEmail(email: String): Future[Option[User]]

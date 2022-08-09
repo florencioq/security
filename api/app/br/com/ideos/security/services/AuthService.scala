@@ -121,6 +121,10 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
     authRepository.listUsers(pagination, applicationKey)
   }
 
+  def listSimpleUsers(ids: Seq[Long], applicationKey: String): Future[Seq[SimpleUser]] = {
+    authRepository.listUsers(ids, applicationKey).map(_.map(_.simple))
+  }
+
   def getUser(id: Long, appKey: String): Future[UserDetails] = {
     for {
       user <- authRepository.getUser(id).map(_.getOrElse(throw UserNotFoundException()))

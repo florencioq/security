@@ -88,6 +88,10 @@ class Controller(
     authService.listUsers(pagination, r.payload.appKey).map(Ok(_))
   }
 
+  def listSimpleUsers(ids: Seq[Long]): Action[AnyContent] = AuthAction.async { implicit r =>
+    authService.listSimpleUsers(ids, r.payload.appKey).map(Ok(_))
+  }
+
   def getUser(id: Long): Action[AnyContent] = ManagerAction.async { implicit r =>
     authService.getUser(id, r.payload.appKey).map(Ok(_))
   }

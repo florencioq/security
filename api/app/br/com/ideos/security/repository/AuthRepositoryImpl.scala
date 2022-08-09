@@ -24,6 +24,18 @@ class AuthRepositoryImpl(implicit ec: ExecutionContext) extends AuthRepository {
       .withGenericDBRecover
   }
 
+  def listUsers(ids: Seq[Long], appKey: String): Future[Seq[UserInfo]] = {
+    val action = usersT
+      .join(userAppLinksT.filter(_.appKey === appKey)).on(_.id === _.userId)
+      .filter(_._1.id inSet ids)
+      .result
+    db.run(action)
+      .map(_.map { case (user, link) =>
+        user.toUserInfo(link.disabled)
+      })
+      .withGenericDBRecover
+  }
+
   override def getUser(id: Long): Future[Option[User]] = db.run(getByIdAction(id)).withGenericDBRecover
 
   override def getUserByEmail(email: String): Future[Option[User]] = db.run(getByEmailAction(email)).withGenericDBRecover

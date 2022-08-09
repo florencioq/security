@@ -63,6 +63,17 @@ GET     /users                                  br.com.ideos.security.Controller
 #       content:
 #           application/json:
 #               schema:
+#                  $ref: '#/components/schemas/Seq[br.com.ideos.security.model.SimpleUser]'
+###
+GET     /simple-users                           br.com.ideos.security.Controller.listSimpleUsers(ids: Seq[Long])
+
+
+###
+# responses:
+#   '200':
+#       content:
+#           application/json:
+#               schema:
 #                  $ref: '#/components/schemas/br.com.ideos.security.model.UserDetails'
 #   '404':
 #       description: Not found
