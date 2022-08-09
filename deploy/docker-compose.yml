@@ -17,3 +17,10 @@ services:
       - ./api/conf/migration:/flyway/sql
     depends_on:
       - db
+
+  app:
+    image: registry.gitlab.com/ideos_dev/security/security-api:${PLATFORM_IMAGE_TAG}
+    ports:
+      - "9000:9000"
+    depends_on:
+      - flyway

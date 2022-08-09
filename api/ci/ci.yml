@@ -10,9 +10,8 @@
 include: '/api/ci/$CI_COMMIT_REF_SLUG.yml'
 
 variables:
-  APP_BASE_PATH: /home/ubuntu/app-data/api
+  APP_BASE_PATH: /home/ubuntu/security
   DEPLOY_BASE_PATH: $APP_BASE_PATH/deploy
-  COURSIER_CACHE: $APP_BASE_PATH/cache/coursier
 
 .base:
   image: docker:latest
@@ -43,7 +42,7 @@ publish_api:
     - wget -qO - --no-check-certificate "https://github.com/zmwangx/ets/releases/download/v0.2.1/ets_0.2.1_linux_amd64.tar.gz" | tar -xz -C /usr/local/bin
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - ets -s -f '[%T.%L]' sbt -Dsbt.global.base=./cache/.sbt/ -Dsbt.ivy.home=./cache/.ivy2/ -Divy.home=./cache/.ivy2/ ";securityApi / test ;securityApi / docker:publish"
+    - ets -s -f '[%T.%L]' sbt ";securityApi / test ;securityApi / docker:publish"
 
 deploy_api:
   extends:
@@ -58,10 +57,11 @@ deploy_api:
     - touch ~/.ssh/known_hosts
     - whoami
     - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo mkdir -p $APP_BASE_PATH
     - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo rm -r $APP_BASE_PATH
     - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP git clone --branch $BRANCH $CI_REPOSITORY_URL $APP_BASE_PATH
     - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
-    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker pull $CI_REGISTRY/$CI_PROJECT_PATH/rebates-platform:$IMAGE_TAG
+    - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker pull $CI_REGISTRY/$CI_PROJECT_PATH/security-api:$IMAGE_TAG
     - ssh -i ~/aws.pem $DEPLOYMENT_SERVER_USERNAME@$SERVER_IP sudo docker compose -f $DEPLOY_BASE_PATH/docker-compose.yml --env-file $DEPLOY_BASE_PATH/$ENV_FILE up -d
   needs:
     - job: publish_api
