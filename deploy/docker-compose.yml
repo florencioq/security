@@ -21,6 +21,6 @@ services:
   app:
     image: registry.gitlab.com/ideos_dev/security/security-api:${IMAGE_TAG}
     ports:
-      - "9000:9000"
+      - "9010:9000"
     depends_on:
       - flyway
