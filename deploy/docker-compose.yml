@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  security-db:
+  db:
     image: postgres:14.1-alpine
     environment:
       POSTGRES_PASSWORD: postgres
@@ -10,7 +10,7 @@ services:
     volumes:
       - /data/database:/var/lib/postgresql/data
 
-  security-flyway:
+  flyway:
     image: flyway/flyway
     command: -driver=${SECURITY_DRIVER} -url=${SECURITY_DB_URL} -user=${SECURITY_DB_USER} -password=${SECURITY_DB_PASSWORD} -connectRetries=60 migrate
     volumes:
@@ -18,7 +18,7 @@ services:
     depends_on:
       - db
 
-  security-app:
+  app:
     image: registry.gitlab.com/ideos_dev/security/security-api:${IMAGE_TAG}
     ports:
       - "9000:9000"
