@@ -42,7 +42,7 @@ object Settings {
 
   val flywaySettings: Seq[Def.Setting[_]] = Seq(
     flywayDriver := "org.postgresql.Driver",
-    flywayUrl := "jdbc:postgresql://localhost:5432/security",
+    flywayUrl := "jdbc:postgresql://localhost:5431/security",
     flywayUser := "postgres",
     flywayPassword := "postgres",
     flywayLocations += "migration",

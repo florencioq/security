@@ -14,7 +14,7 @@ services:
     image: flyway/flyway
     command: -driver=${SECURITY_DRIVER} -url=${SECURITY_DB_URL} -user=${SECURITY_DB_USER} -password=${SECURITY_DB_PASSWORD} -connectRetries=60 migrate
     volumes:
-      - ./api/conf/migration:/flyway/sql
+      - ../api/conf/migration:/flyway/sql
     depends_on:
       - db
 
@@ -22,5 +22,7 @@ services:
     image: registry.gitlab.com/ideos_dev/security/security-api:${IMAGE_TAG}
     ports:
       - "9010:9000"
+    env_file:
+      - ${ENV_FILE}
     depends_on:
       - flyway
