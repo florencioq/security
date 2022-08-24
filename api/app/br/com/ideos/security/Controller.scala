@@ -84,8 +84,8 @@ class Controller(
   }
 
 
-  def listUsers(pagination: Pagination): Action[AnyContent] = ManagerAction.async { implicit r =>
-    authService.listUsers(pagination, r.payload.appKey).map(Ok(_))
+  def listUsers(pagination: Pagination, email: Option[String]): Action[AnyContent] = ManagerAction.async { implicit r =>
+    authService.listUsers(pagination, r.payload.appKey, email).map(Ok(_))
   }
 
   def listSimpleUsers(ids: Seq[Long]): Action[AnyContent] = AuthAction.async { implicit r =>

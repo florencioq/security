@@ -12,8 +12,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRepositoryImpl(implicit ec: ExecutionContext) extends AuthRepository {
 
-  override def listUsers(pagination: Pagination, appKey: String): Future[Paginated[UserInfo]] = {
+  override def listUsers(pagination: Pagination, appKey: String, email: Option[String]): Future[Paginated[UserInfo]] = {
     val action = usersT
+      .filter(u => email.fold(true.bind)(e => u.email.toLowerCase.like(s"%${e.toLowerCase}%")))
       .join(userAppLinksT.filter(_.appKey === appKey)).on(_.id === _.userId)
       .paginatedResult(pagination)
 

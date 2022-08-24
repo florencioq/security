@@ -117,8 +117,8 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
   }
 
 
-  def listUsers(pagination: Pagination, applicationKey: String): Future[Paginated[UserInfo]] = {
-    authRepository.listUsers(pagination, applicationKey)
+  def listUsers(pagination: Pagination, applicationKey: String, email: Option[String]): Future[Paginated[UserInfo]] = {
+    authRepository.listUsers(pagination, applicationKey, email)
   }
 
   def listSimpleUsers(ids: Seq[Long], applicationKey: String): Future[Seq[SimpleUser]] = {

@@ -54,7 +54,7 @@ POST    /validate/:appKey                       br.com.ideos.security.Controller
 #               schema:
 #                  $ref: '#/components/schemas/br.com.ideos.security.model.queryparams.Paginated[br.com.ideos.security.model.UserInfo]'
 ###
-GET     /users                                  br.com.ideos.security.Controller.listUsers(pagination: Pagination)
+GET     /users                                  br.com.ideos.security.Controller.listUsers(pagination: Pagination, email: Option[String])
 
 
 ###

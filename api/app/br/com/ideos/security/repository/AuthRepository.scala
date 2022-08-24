@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 trait AuthRepository {
 
-  def listUsers(pagination: Pagination, appKey: String): Future[Paginated[UserInfo]]
+  def listUsers(pagination: Pagination, appKey: String, email: Option[String]): Future[Paginated[UserInfo]]
 
   def listUsers(ids: Seq[Long], appKey: String): Future[Seq[UserInfo]]
 
