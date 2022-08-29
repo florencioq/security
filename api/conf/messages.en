@@ -16,3 +16,6 @@ exceptions.adminsCantBeDisabled=Admins can't be disabled
 exceptions.userNotAllowedInApp=User is not allowed to access this application
 exceptions.appNotFound=Application not found
 exceptions.appUrlNotFound=No application webapp URL registered
+
+mailer.invite.subject=Ideos security - Invite
+mailer.passwordRecovery.subject=Ideos security - Redefine password

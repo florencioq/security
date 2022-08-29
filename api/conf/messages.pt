@@ -16,3 +16,6 @@ exceptions.adminsCantBeDisabled=Administradores não podem ser desabilitados
 exceptions.userNotAllowedInApp=O usuário não possui permissão para acessar essa aplicação
 exceptions.appNotFound=Aplicação não encontrada
 exceptions.appUrlNotFound=Url do webapp da aplicação não cadastrado
+
+mailer.invite.subject=Ideos security - Convite
+mailer.passwordRecovery.subject=Ideos security - Redefinir senha
