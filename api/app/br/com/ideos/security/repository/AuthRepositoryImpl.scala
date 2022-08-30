@@ -98,11 +98,35 @@ class AuthRepositoryImpl(implicit ec: ExecutionContext) extends AuthRepository {
 
   override def isAdmin(userId: Long): Future[Boolean] = db.run(isAdminAction(userId)).withGenericDBRecover
 
+  override def toggleAdmin(userId: Long): Future[Boolean] = {
+    val query = adminsT.filter(_.userId === userId)
+
+    val action = for {
+      exists <- query.exists.result
+      res <- if (exists) query.delete else adminsT += AdminRef(userId)
+    } yield res > 0
+
+    db.run(action).withGenericDBRecover
+  }
+
   override def isManager(userId: Long, appKey: String): Future[Boolean] = {
     val action = managersT
       .filter(_.userId === userId)
       .filter(_.appKey === appKey)
       .exists.result
+    db.run(action).withGenericDBRecover
+  }
+
+  override def toggleManager(userId: Long, appKey: String): Future[Boolean] = {
+    val query = managersT
+      .filter(_.appKey === appKey)
+      .filter(_.userId === userId)
+
+    val action = for {
+      exists <- query.exists.result
+      res <- if (exists) query.delete else managersT += Manager(userId, appKey)
+    } yield res > 0
+
     db.run(action).withGenericDBRecover
   }
 

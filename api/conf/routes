@@ -99,6 +99,21 @@ POST    /users/:userId/update-permissions        br.com.ideos.security.Controlle
 #   '204':
 #       description: Success
 ###
+POST    /users/:userId/toggle-admin              br.com.ideos.security.Controller.toggleAdmin(userId: Long)
+
+###
+# responses:
+#   '204':
+#       description: Success
+###
+POST    /users/:userId/toggle-manager            br.com.ideos.security.Controller.toggleManager(userId: Long)
+
+
+###
+# responses:
+#   '204':
+#       description: Success
+###
 POST    /users/:userId/disable                   br.com.ideos.security.Controller.disableUser(userId: Long)
 
 

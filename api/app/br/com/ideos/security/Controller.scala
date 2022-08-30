@@ -1,7 +1,7 @@
 package br.com.ideos.security
 
 import br.com.ideos.libs.security.SecureActions
-import br.com.ideos.security.exceptions.{AccessTokenNotFromAppException, AppUrlNotFoundException}
+import br.com.ideos.security.exceptions.{AccessTokenNotFromAppException, AppUrlNotFoundException, UserCantAlterOwnLevelException}
 import br.com.ideos.security.model.queryparams.Pagination
 import br.com.ideos.security.model.{LoginForm, PasswordDefinitionPayload, PasswordUpdatePayload, PermissionUpdatePayload}
 import br.com.ideos.security.services.{AuthService, EmailService}
@@ -49,6 +49,16 @@ class Controller(
 
   def updatePermissions(userId: Long): Action[PermissionUpdatePayload] = ManagerAction(parse.json[PermissionUpdatePayload]).async { implicit r =>
     authService.updatePermissions(userId, r.payload.appKey, r.body).map(_ => NoContent)
+  }
+
+  def toggleAdmin(userId: Long): Action[AnyContent] = AdminAction.async { implicit r =>
+    if (r.payload.userId == userId) throw UserCantAlterOwnLevelException()
+    authService.toggleAdmin(userId).map(_ => NoContent)
+  }
+
+  def toggleManager(userId: Long): Action[AnyContent] = ManagerAction.async { implicit r =>
+    if (r.payload.userId == userId) throw UserCantAlterOwnLevelException()
+    authService.toggleManager(userId, r.payload.appKey).map(_ => NoContent)
   }
 
   def disableUser(userId: Long): Action[AnyContent] = ManagerAction.async { implicit r =>

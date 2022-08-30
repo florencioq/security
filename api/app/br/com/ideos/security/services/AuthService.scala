@@ -65,6 +65,14 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
     authRepository.updatePermissions(userId, appKey, update)
   }
 
+  def toggleAdmin(userId: Long): Future[Boolean] = {
+    authRepository.toggleAdmin(userId)
+  }
+
+  def toggleManager(userId: Long, appKey: String): Future[Boolean] = {
+    authRepository.toggleManager(userId, appKey)
+  }
+
   def setUserDisabled(userId: Long, appKey: String, disabled: Boolean): Future[Unit] = {
     for {
       isAdmin <- authRepository.isAdmin(userId)

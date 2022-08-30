@@ -36,7 +36,11 @@ trait AuthRepository {
 
   def isAdmin(userId: Long): Future[Boolean]
 
+  def toggleAdmin(userId: Long): Future[Boolean]
+
   def isManager(userId: Long, appKey: String): Future[Boolean]
+
+  def toggleManager(userId: Long, appKey: String): Future[Boolean]
 
   def getRoles(appKey: String): Future[Seq[Role]]
 
