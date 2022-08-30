@@ -84,11 +84,14 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
   def getInvitationToken(email: String, appKey: String): Future[String] = {
     for {
       maybeUser <- authRepository.getUserByEmail(email)
-      _ = if (maybeUser.isDefined) throw UserAlreadyExistsException()
-    } yield {
-      val tokenPayload = InvitationTokenPayload(email, appKey)
-      JwtUtils.generateToken(tokenPayload)
-    }
+      payload <- maybeUser match {
+        case Some(user) => authRepository.getUserAppLink(user.id, appKey).map {
+          case Some(_) => throw UserAlreadyExistsException()
+          case None => InvitationTokenPayload(email, appKey, newUser = false)
+        }
+        case None => Future.successful(InvitationTokenPayload(email, appKey, newUser = true))
+      }
+    } yield JwtUtils.generateToken(payload)
   }
 
   def createUser(email: String, password: String): Future[Unit] = {

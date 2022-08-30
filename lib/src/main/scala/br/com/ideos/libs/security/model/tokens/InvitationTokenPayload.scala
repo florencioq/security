@@ -5,6 +5,7 @@ import play.api.libs.json.{Format, Json}
 case class InvitationTokenPayload(
   email: String,
   appKey: String,
+  newUser: Boolean,
   override val kind: String = TokenType.FirstAccess,
 ) extends TokenPayload(kind)
 
