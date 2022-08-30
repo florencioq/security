@@ -155,6 +155,13 @@ POST    /update-password                        br.com.ideos.security.Controller
 
 
 ###
+# responses:
+#   '204':
+#       description: Success
+###
+POST    /accept-invitation                      br.com.ideos.security.Controller.acceptInvitation()
+
+###
 # requestBody:
 #     content:
 #       application/json:
