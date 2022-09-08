@@ -34,12 +34,10 @@ class Controller(
     Ok(r.payload)
   }
 
-  def forgotPassword(email: String, appKey: String): Action[AnyContent] = SimpleAction.async { implicit r =>
+  def forgotPassword(email: String): Action[AnyContent] = SimpleAction.async { implicit r =>
     for {
       token <- authService.getPasswordRedefinitionToken(email)
-      app <- authService.getApp(appKey)
-      webappUrl = app.webappUrl.getOrElse(throw AppUrlNotFoundException())
-      _ = emailService.sendPasswordRedefinition(email, token, webappUrl)
+      _ = emailService.sendPasswordRedefinition(email, token)
     } yield NoContent
   }
 

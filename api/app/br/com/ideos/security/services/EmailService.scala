@@ -7,6 +7,7 @@ import play.api.libs.mailer.{Email, MailerClient}
 class EmailService(mailerClient: MailerClient, configuration: Configuration) {
 
   private val sender = configuration.get[String]("play.mailer.user")
+  private val securityWebappUrl = configuration.get[String]("security.webapp.url")
 
   def sendInvite(email: String, token: String, webappUrl: String)(implicit messages: Messages): String = {
     mailerClient.send(Email(
@@ -17,12 +18,12 @@ class EmailService(mailerClient: MailerClient, configuration: Configuration) {
     ))
   }
 
-  def sendPasswordRedefinition(email: String, token: String, webappUrl: String)(implicit messages: Messages): String = {
+  def sendPasswordRedefinition(email: String, token: String)(implicit messages: Messages): String = {
     mailerClient.send(Email(
       messages("mailer.passwordRecovery.subject"),
       sender,
       Seq(email),
-      bodyHtml = Some(s"""<html><body><a href="$webappUrl/password-redefinition?t=$token">$webappUrl/password-redefinition</a></body></html>""")
+      bodyHtml = Some(s"""<html><body><a href="$securityWebappUrl/password-redefinition?t=$token">$securityWebappUrl/password-redefinition</a></body></html>""")
     ))
   }
 

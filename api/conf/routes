@@ -138,7 +138,7 @@ POST    /invite                                 br.com.ideos.security.Controller
 #   '204':
 #       description: Success
 ###
-POST    /forgot-password                        br.com.ideos.security.Controller.forgotPassword(email: String, appKey: String)
+POST    /forgot-password                        br.com.ideos.security.Controller.forgotPassword(email: String)
 
 
 ###
