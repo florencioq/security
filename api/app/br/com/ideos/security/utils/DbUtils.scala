@@ -13,6 +13,33 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object DbUtils {
 
+  val db = Database.forConfig("db.default") // Not sure if it's the best place for this
+
+  class ActionRunner[+R, -E <: Effect](block: => DBIOAction[R, NoStream, E])(implicit ec: ExecutionContext) {
+    def run(): Future[R] = db.run(block.transactionally).withGenericDBRecover
+
+    def action: DBIOAction[R, NoStream, E] = block
+
+    def map[R2](f: R => R2): ActionRunner[R2, E with Effect] = flatMap(r => ActionRunner.successful(f(r)))
+
+    def flatMap[S, E2 <: Effect](f: R => ActionRunner[S, E2]): ActionRunner[S, E with E2] = ActionRunner {
+      for {
+        r <- this.action
+        s <- f(r).action
+      } yield s
+    }
+  }
+
+  object ActionRunner {
+    def apply[R, E <: Effect](block: => DBIOAction[R, NoStream, E])(implicit ec: ExecutionContext): ActionRunner[R, E] = {
+      new ActionRunner[R, E](block)
+    }
+
+    def successful[R](r: R)(implicit ec: ExecutionContext): ActionRunner[R, Effect] = ActionRunner {
+      DBIO.successful(r)
+    }
+  }
+
   implicit class PaginatedResultQuery[+E, U](query: Query[E, U, Seq])
     (implicit ec: ExecutionContext) {
     def paginatedResult(pagination: Pagination): DBIOAction[Paginated[U], NoStream, Effect.Read] = {

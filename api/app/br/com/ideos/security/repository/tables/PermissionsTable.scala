@@ -1,7 +1,6 @@
 package br.com.ideos.security.repository.tables
 
 import br.com.ideos.security.model.Permission
-import br.com.ideos.security.repository.SchemaName
 import slick.jdbc.PostgresProfile.api._
 
 class PermissionsTable(tag: Tag) extends Table[Permission](tag, SchemaName, "permissions") {

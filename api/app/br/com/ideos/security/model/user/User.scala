@@ -1,4 +1,4 @@
-package br.com.ideos.security.model
+package br.com.ideos.security.model.user
 
 import play.api.libs.json.{Format, Json}
 
@@ -14,6 +14,8 @@ case class User(
 
   def toUserDetails(isAdmin: Boolean, isManager:  Boolean, disabled: Boolean, permissions: Set[String]): UserDetails =
     UserDetails(id, email, createdAt, disabled, isAdmin, isManager, permissions)
+
+  def simple: SimpleUser = SimpleUser(id, email)
 }
 
 object User {

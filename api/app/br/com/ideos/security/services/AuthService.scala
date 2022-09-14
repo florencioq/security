@@ -6,7 +6,10 @@ import br.com.ideos.security.core.JwtUtils
 import br.com.ideos.security.exceptions._
 import br.com.ideos.security.model._
 import br.com.ideos.security.model.queryparams.{Paginated, Pagination}
-import br.com.ideos.security.repository.AuthRepository
+import br.com.ideos.security.model.user.{SimpleUser, UserDetails, UserInfo}
+import br.com.ideos.security.repository.{AuthRepository, RolesRepository}
+import br.com.ideos.security.utils.DbUtils.ActionRunner
+import br.com.ideos.security.utils.ServiceUtils.ServiceCall
 import com.github.t3hnar.bcrypt._
 import play.api.Configuration
 
@@ -14,23 +17,27 @@ import java.util.UUID
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthService(authRepository: AuthRepository, config: Configuration)(implicit ec: ExecutionContext) {
+class AuthService(
+  authRepository: AuthRepository,
+  rolesRepository: RolesRepository,
+  config: Configuration,
+)(implicit ec: ExecutionContext) {
 
   private val grantExpiration = config.get[Duration]("security.jwt.grantExpiration")
   private val accessTokenExpiration = config.get[Duration]("security.jwt.accessExpiration")
 
-  def login(loginForm: LoginForm): Future[String] = {
+  def login(loginForm: LoginForm): Future[String] = ServiceCall {
     for {
       user <- authRepository.getUserByEmail(loginForm.email).map(_.getOrElse(throw InvalidCredentialsException()))
       isPasswordValid = checkPasswordValidity(loginForm.password, user.password)
       _ = if (!isPasswordValid) throw InvalidCredentialsException()
     } yield {
-        val grantPayload = GrantPayload(user.id)
-        JwtUtils.generateToken(grantPayload, grantExpiration)
+      val grantPayload = GrantPayload(user.id)
+      JwtUtils.generateToken(grantPayload, grantExpiration)
     }
   }
 
-  def getAccess(userId: Long, appKey: String): Future[String] = {
+  def getAccess(userId: Long, appKey: String): Future[String] = ServiceCall {
     for {
       user <- authRepository.getUser(userId).map(_.getOrElse(throw UserNotFoundException()))
 
@@ -40,16 +47,16 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
         case None => throw UserNotAllowedInAppException()
       }
 
-      isAdmin <- authRepository.isAdmin(user.id)
-      isManager <- authRepository.isManager(user.id, appKey)
-      roles <- authRepository.permissions(user.id, appKey)
+      isAdmin <- rolesRepository.isAdmin(user.id)
+      isManager <- rolesRepository.isManager(user.id, appKey)
+      roles <- rolesRepository.permissions(user.id, appKey)
     } yield {
       val payload = AccessTokenPayload(appKey, user.id, user.email, isAdmin, isManager, roles)
       JwtUtils.generateToken(payload, accessTokenExpiration)
     }
   }
 
-  def updatePassword(userId: Long, updatePayload: PasswordUpdatePayload): Future[Unit] = {
+  def updatePassword(userId: Long, updatePayload: PasswordUpdatePayload): Future[Unit] = ServiceCall {
     for {
       user <- authRepository.getUser(userId).map(_.getOrElse(throw InvalidCredentialsException()))
 
@@ -61,27 +68,15 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
     } yield ()
   }
 
-  def updatePermissions(userId: Long, appKey: String, update: PermissionUpdatePayload): Future[Unit] = {
-    authRepository.updatePermissions(userId, appKey, update)
-  }
-
-  def toggleAdmin(userId: Long): Future[Boolean] = {
-    authRepository.toggleAdmin(userId)
-  }
-
-  def toggleManager(userId: Long, appKey: String): Future[Boolean] = {
-    authRepository.toggleManager(userId, appKey)
-  }
-
-  def setUserDisabled(userId: Long, appKey: String, disabled: Boolean): Future[Unit] = {
+  def setUserDisabled(userId: Long, appKey: String, disabled: Boolean): Future[Unit] = ServiceCall {
     for {
-      isAdmin <- authRepository.isAdmin(userId)
+      isAdmin <- rolesRepository.isAdmin(userId)
       _ = if (isAdmin) throw AdminsCantBeDisabledException()
       _ <- authRepository.setUserDisabled(userId, appKey, disabled)
     } yield ()
   }
 
-  def getInvitationToken(email: String, appKey: String): Future[String] = {
+  def getInvitationToken(email: String, appKey: String): Future[String] = ServiceCall {
     for {
       maybeUser <- authRepository.getUserByEmail(email)
       payload <- maybeUser match {
@@ -89,12 +84,12 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
           case Some(_) => throw UserAlreadyExistsException()
           case None => InvitationTokenPayload(email, appKey, newUser = false)
         }
-        case None => Future.successful(InvitationTokenPayload(email, appKey, newUser = true))
+        case None => ActionRunner.successful(InvitationTokenPayload(email, appKey, newUser = true))
       }
     } yield JwtUtils.generateToken(payload)
   }
 
-  def createUser(email: String, password: String): Future[Unit] = {
+  def createUser(email: String, password: String): Future[Unit] = ServiceCall {
     for {
       maybeUser <- authRepository.getUserByEmail(email)
       _ = if (maybeUser.isDefined) throw UserAlreadyExistsException()
@@ -102,14 +97,14 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
     } yield ()
   }
 
-  def acceptInvitation(email: String, appKey: String): Future[Unit] = {
+  def acceptInvitation(email: String, appKey: String): Future[Unit] = ServiceCall {
     for {
       user <- authRepository.getUserByEmail(email).map(_.getOrElse(throw UserNotFoundException()))
       _ <- authRepository.acceptInvitation(user.id, appKey)
     } yield ()
   }
 
-  def getPasswordRedefinitionToken(email: String): Future[String] = {
+  def getPasswordRedefinitionToken(email: String): Future[String] = ServiceCall {
     authRepository
       .getUserByEmail(email)
       .map(_.getOrElse(throw UserNotFoundException()))
@@ -119,7 +114,7 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
       }
   }
 
-  def redefinePassword(userId: Long, newPassword: String, redefinitionId: UUID): Future[Unit] = {
+  def redefinePassword(userId: Long, newPassword: String, redefinitionId: UUID): Future[Unit] = ServiceCall {
     for {
       redefinitionIdAlreadyUsed <- authRepository.isRedefinitionIdUsed(userId, redefinitionId)
       _ = if (redefinitionIdAlreadyUsed) throw RedefinitionIdAlreadyUsedException()
@@ -128,35 +123,26 @@ class AuthService(authRepository: AuthRepository, config: Configuration)(implici
   }
 
 
-  def listUsers(pagination: Pagination, applicationKey: String, email: Option[String]): Future[Paginated[UserInfo]] = {
-    authRepository.listUsers(pagination, applicationKey, email)
+  def listUsers(pagination: Pagination, applicationKey: String, email: Option[String]): Future[Paginated[UserInfo]] = ServiceCall {
+    for {
+      res <- authRepository.listUsers(pagination, applicationKey, email)
+    } yield res.transformResult { case (user, link) => user.toUserInfo(link.disabled) }
   }
 
-  def listSimpleUsers(ids: Seq[Long], applicationKey: String): Future[Seq[SimpleUser]] = {
+  def listSimpleUsers(ids: Seq[Long], applicationKey: String): Future[Seq[SimpleUser]] = ServiceCall {
     authRepository.listUsers(ids, applicationKey).map(_.map(_.simple))
   }
 
-  def getUser(id: Long, appKey: String): Future[UserDetails] = {
+  def getUser(id: Long, appKey: String): Future[UserDetails] = ServiceCall {
     for {
       user <- authRepository.getUser(id).map(_.getOrElse(throw UserNotFoundException()))
       appLink <- authRepository.getUserAppLink(id, appKey).map(_.getOrElse(throw UserNotFoundException()))
 
-      isAdmin <- authRepository.isAdmin(user.id)
-      isManager <- authRepository.isManager(user.id, appKey)
-      roles <- authRepository.permissions(user.id, appKey)
+      isAdmin <- rolesRepository.isAdmin(user.id)
+      isManager <- rolesRepository.isManager(user.id, appKey)
+      roles <- rolesRepository.permissions(user.id, appKey)
     } yield user.toUserDetails(isAdmin, isManager, appLink.disabled, roles)
   }
-
-  def getApp(appKey: String): Future[Application] = {
-    authRepository
-      .getApp(appKey)
-      .map(_.getOrElse(throw AppNotFoundException()))
-  }
-
-  def getRoles(appKey: String): Future[Seq[Role]] = {
-    authRepository.getRoles(appKey)
-  }
-
 
   private def applyBcrypt(s: String): String = {
     s.bcryptSafeBounded.getOrElse(throw new DefaultApiException())

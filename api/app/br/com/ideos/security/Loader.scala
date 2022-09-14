@@ -3,8 +3,9 @@ package br.com.ideos.security
 import akka.actor.ActorSystem
 import br.com.ideos.libs.security.{SecureActions, TokenValidator}
 import br.com.ideos.security.core.SecurityTokenValidator
-import br.com.ideos.security.repository.{AuthRepository, AuthRepositoryImpl}
-import br.com.ideos.security.services.{AuthService, EmailService}
+import br.com.ideos.security.repository.{AppRepository, AuthRepository, RolesRepository}
+import br.com.ideos.security.repository.impl.{AppRepositoryImpl, AuthRepositoryImpl, RolesRepositoryImpl}
+import br.com.ideos.security.services.{AppService, AuthService, EmailService, RolesService}
 import com.softwaremill.macwire.wire
 import com.typesafe.config.Config
 import controllers.AssetsComponents
@@ -61,8 +62,16 @@ class ApplicationModule(ctx: Context)
   lazy val controller: Controller = wire[Controller]
   lazy val docsController: DocsController = wire[DocsController]
 
-  lazy val service: AuthService = wire[AuthService]
-  lazy val repository: AuthRepository = wire[AuthRepositoryImpl]
+
+  lazy val authService: AuthService = wire[AuthService]
+  lazy val appService: AppService = wire[AppService]
+  lazy val rolesService: RolesService = wire[RolesService]
+
+
+  lazy val authRepository: AuthRepository = wire[AuthRepositoryImpl]
+  lazy val appRepository: AppRepository = wire[AppRepositoryImpl]
+  lazy val rolesRepository: RolesRepository = wire[RolesRepositoryImpl]
+
 
   override lazy val httpErrorHandler: ErrorHandler = wire[ErrorHandler]
 

@@ -17,6 +17,8 @@ exceptions.userNotAllowedInApp=O usuário não possui permissão para acessar es
 exceptions.appNotFound=Aplicação não encontrada
 exceptions.appUrlNotFound=Url do webapp da aplicação não cadastrado
 exceptions.userCantAlterOwnLevel=O usuário não pode alterar o próprio nível de permissão na aplicação
+exceptions.appKeyNotAvailable=Uma aplicação com esse identificador já existe
+exceptions.roleNotFound=Permissão não encontrada
 
 mailer.invite.subject=Ideos security - Convite
 mailer.passwordRecovery.subject=Ideos security - Redefinir senha

@@ -3,6 +3,8 @@ package br.com.ideos.security.repository
 import slick.lifted.TableQuery
 
 package object tables {
+  val SchemaName: Option[String] = Some("security")
+
   val usersT = TableQuery[UsersTable]
 
   val applicationsT = TableQuery[ApplicationsTable]

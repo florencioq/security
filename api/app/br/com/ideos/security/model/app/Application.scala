@@ -1,4 +1,4 @@
-package br.com.ideos.security.model
+package br.com.ideos.security.model.app
 
 import play.api.libs.json.{Format, Json}
 

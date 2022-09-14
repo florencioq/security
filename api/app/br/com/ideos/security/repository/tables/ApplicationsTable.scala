@@ -1,7 +1,6 @@
 package br.com.ideos.security.repository.tables
 
-import br.com.ideos.security.model.Application
-import br.com.ideos.security.repository.SchemaName
+import br.com.ideos.security.model.app.Application
 import slick.jdbc.PostgresProfile.api._
 
 class ApplicationsTable(tag: Tag) extends Table[Application](tag, SchemaName, "applications") {

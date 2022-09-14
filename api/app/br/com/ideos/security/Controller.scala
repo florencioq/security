@@ -1,10 +1,12 @@
 package br.com.ideos.security
 
 import br.com.ideos.libs.security.SecureActions
-import br.com.ideos.security.exceptions.{AccessTokenNotFromAppException, AppUrlNotFoundException, UserCantAlterOwnLevelException}
+import br.com.ideos.security.exceptions.app.AppUrlNotFoundException
+import br.com.ideos.security.exceptions.{AccessTokenNotFromAppException, UserCantAlterOwnLevelException}
+import br.com.ideos.security.model.app.Application
 import br.com.ideos.security.model.queryparams.Pagination
-import br.com.ideos.security.model.{LoginForm, PasswordDefinitionPayload, PasswordUpdatePayload, PermissionUpdatePayload}
-import br.com.ideos.security.services.{AuthService, EmailService}
+import br.com.ideos.security.model.{LoginForm, PasswordDefinitionPayload, PasswordUpdatePayload, PermissionUpdatePayload, Role}
+import br.com.ideos.security.services.{AppService, AuthService, EmailService, RolesService}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 
@@ -12,6 +14,8 @@ import scala.concurrent.ExecutionContext
 
 class Controller(
   authService: AuthService,
+  appService: AppService,
+  rolesService: RolesService,
   emailService: EmailService,
   cc: ControllerComponents,
   secureActions: SecureActions,
@@ -46,17 +50,17 @@ class Controller(
   }
 
   def updatePermissions(userId: Long): Action[PermissionUpdatePayload] = ManagerAction(parse.json[PermissionUpdatePayload]).async { implicit r =>
-    authService.updatePermissions(userId, r.payload.appKey, r.body).map(_ => NoContent)
+    rolesService.updatePermissions(userId, r.payload.appKey, r.body).map(_ => NoContent)
   }
 
   def toggleAdmin(userId: Long): Action[AnyContent] = AdminAction.async { implicit r =>
     if (r.payload.userId == userId) throw UserCantAlterOwnLevelException()
-    authService.toggleAdmin(userId).map(_ => NoContent)
+    rolesService.toggleAdmin(userId).map(_ => NoContent)
   }
 
   def toggleManager(userId: Long): Action[AnyContent] = ManagerAction.async { implicit r =>
     if (r.payload.userId == userId) throw UserCantAlterOwnLevelException()
-    authService.toggleManager(userId, r.payload.appKey).map(_ => NoContent)
+    rolesService.toggleManager(userId, r.payload.appKey).map(_ => NoContent)
   }
 
   def disableUser(userId: Long): Action[AnyContent] = ManagerAction.async { implicit r =>
@@ -70,7 +74,7 @@ class Controller(
   def invite(email: String): Action[AnyContent] = ManagerAction.async { implicit r =>
     for {
       token <- authService.getInvitationToken(email, r.payload.appKey)
-      app <- authService.getApp(r.payload.appKey)
+      app <- appService.getApp(r.payload.appKey)
       webappUrl = app.webappUrl.getOrElse(throw AppUrlNotFoundException())
       _ = emailService.sendInvite(email, token, webappUrl)
     } yield NoContent
@@ -105,7 +109,25 @@ class Controller(
   }
 
   def getRoles: Action[AnyContent] = ManagerAction.async { implicit r =>
-    authService.getRoles(r.payload.appKey).map(Ok(_))
+    rolesService.getRoles(r.payload.appKey).map(Ok(_))
+  }
+
+  def addRole(): Action[Role] = AdminAction(parse.json[Role]).async { implicit r =>
+    rolesService.addRole(r.body).map(_ => NoContent)
+  }
+
+  def deleteRole(id: Long): Action[AnyContent] = AdminAction.async { implicit r =>
+    rolesService.deleteRole(id).map(Ok(_))
+  }
+
+  def getApps: Action[AnyContent] = AuthAction.async { implicit r =>
+    appService
+      .listApps(if (r.payload.isAdmin) None else Some(r.payload.userId))
+      .map(Ok(_))
+  }
+
+  def createApp(): Action[Application] = AdminAction(parse.json[Application]).async { implicit r =>
+    appService.createApp(r.body).map(_ => NoContent)
   }
 
 }

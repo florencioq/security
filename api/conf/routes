@@ -52,7 +52,7 @@ POST    /validate/:appKey                       br.com.ideos.security.Controller
 #       content:
 #           application/json:
 #               schema:
-#                  $ref: '#/components/schemas/br.com.ideos.security.model.queryparams.Paginated[br.com.ideos.security.model.UserInfo]'
+#                  $ref: '#/components/schemas/br.com.ideos.security.model.queryparams.Paginated[br.com.ideos.security.model.user.UserInfo]'
 ###
 GET     /users                                  br.com.ideos.security.Controller.listUsers(pagination: Pagination, email: Option[String])
 
@@ -63,7 +63,7 @@ GET     /users                                  br.com.ideos.security.Controller
 #       content:
 #           application/json:
 #               schema:
-#                  $ref: '#/components/schemas/Seq[br.com.ideos.security.model.SimpleUser]'
+#                  $ref: '#/components/schemas/Seq[br.com.ideos.security.model.user.SimpleUser]'
 ###
 GET     /simple-users                           br.com.ideos.security.Controller.listSimpleUsers(ids: Seq[Long])
 
@@ -74,7 +74,7 @@ GET     /simple-users                           br.com.ideos.security.Controller
 #       content:
 #           application/json:
 #               schema:
-#                  $ref: '#/components/schemas/br.com.ideos.security.model.UserDetails'
+#                  $ref: '#/components/schemas/br.com.ideos.security.model.user.UserDetails'
 #   '404':
 #       description: Not found
 ###
@@ -196,3 +196,38 @@ POST    /password-redefinition                  br.com.ideos.security.Controller
 #                  $ref: '#/components/schemas/Seq[br.com.ideos.security.model.Role]'
 ###
 GET     /roles                                  br.com.ideos.security.Controller.getRoles
+
+###
+# responses:
+#   '204':
+#       description: Success
+###
+POST    /roles                                  br.com.ideos.security.Controller.addRole()
+
+###
+# responses:
+#   '200':
+#       content:
+#           application/json:
+#               schema:
+#                  $ref: '#/components/schemas/br.com.ideos.security.model.Role'
+###
+DELETE  /roles/:id                              br.com.ideos.security.Controller.deleteRole(id: Long)
+
+
+###
+# responses:
+#   '200':
+#       content:
+#           application/json:
+#               schema:
+#                  $ref: '#/components/schemas/Seq[br.com.ideos.security.model.app.Application]'
+###
+GET     /apps                                  br.com.ideos.security.Controller.getApps
+
+###
+# responses:
+#   '204':
+#       description: Success
+###
+POST    /apps                                  br.com.ideos.security.Controller.createApp()

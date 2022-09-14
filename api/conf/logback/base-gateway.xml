@@ -10,6 +10,9 @@
     <!-- https://hibernate.atlassian.net/browse/HV-1323 -->
     <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator" level="ERROR" />
 
+<!--    <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG" />-->
+    <logger name="slick.basic.BasicBackend.action" level="DEBUG" />
+
     <!-- LoggerFilter Configuration -->
     <!-- <logger name="request" level="INFO" />-->
     <!-- <logger name="response" level="INFO" />-->

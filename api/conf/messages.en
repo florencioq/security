@@ -17,6 +17,8 @@ exceptions.userNotAllowedInApp=User is not allowed to access this application
 exceptions.appNotFound=Application not found
 exceptions.appUrlNotFound=No application webapp URL registered
 exceptions.userCantAlterOwnLevel=User can't alter own permission level in the application
+exceptions.appKeyNotAvailable=An application with this identifier already exists
+exceptions.roleNotFound=Role not found
 
 mailer.invite.subject=Ideos security - Invite
 mailer.passwordRecovery.subject=Ideos security - Redefine password

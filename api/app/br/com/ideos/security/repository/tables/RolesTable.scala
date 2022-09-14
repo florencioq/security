@@ -1,7 +1,6 @@
 package br.com.ideos.security.repository.tables
 
 import br.com.ideos.security.model.Role
-import br.com.ideos.security.repository.SchemaName
 import slick.jdbc.PostgresProfile.api._
 
 class RolesTable(tag: Tag) extends Table[Role](tag, SchemaName, "roles") {

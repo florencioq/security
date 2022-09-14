@@ -1,7 +1,6 @@
 package br.com.ideos.security.repository.tables
 
 import br.com.ideos.security.model.Manager
-import br.com.ideos.security.repository.SchemaName
 import slick.jdbc.PostgresProfile.api._
 
 class ManagersTable(tag: Tag) extends Table[Manager](tag, SchemaName, "managers") {

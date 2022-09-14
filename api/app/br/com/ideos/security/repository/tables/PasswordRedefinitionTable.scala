@@ -1,7 +1,6 @@
 package br.com.ideos.security.repository.tables
 
 import br.com.ideos.security.model.PasswordRedefinitionAttempt
-import br.com.ideos.security.repository.SchemaName
 import slick.jdbc.PostgresProfile.api._
 
 import java.util.UUID

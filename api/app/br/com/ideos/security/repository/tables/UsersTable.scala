@@ -1,7 +1,6 @@
 package br.com.ideos.security.repository.tables
 
-import br.com.ideos.security.model.User
-import br.com.ideos.security.repository.SchemaName
+import br.com.ideos.security.model.user.User
 import slick.jdbc.PostgresProfile.api._
 
 import java.time.Instant
