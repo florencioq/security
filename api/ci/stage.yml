@@ -1,7 +1,7 @@
 variables:
   ENVIRONMENT: stage
   AWS_KEY: $IDEOS_STAGE_AWS_KEY
-  SERVER_IP: $DEPLOYMENT_STAGE_SERVER_IP
+  SERVER_IP: geonet.app
   BRANCH: stage
   IMAGE_TAG: stage-latest
   ENV_FILE: .env.stage
