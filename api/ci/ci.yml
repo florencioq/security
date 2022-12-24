@@ -13,6 +13,10 @@ variables:
   APP_BASE_PATH: /home/ubuntu/security
   DEPLOY_BASE_PATH: $APP_BASE_PATH/deploy
 
+stages:
+  - publish-api
+  - deploy
+
 .base:
   image: docker:latest
   only:
@@ -28,6 +32,7 @@ variables:
       - cache
 
 publish_api:
+  stage: publish-api
   extends:
     - .base
   before_script:
@@ -45,6 +50,7 @@ publish_api:
     - ets -s -f '[%T.%L]' sbt ";securityApi / test ;securityApi / docker:publish"
 
 deploy_api:
+  stage: deploy
   extends:
     - .base
   before_script:
