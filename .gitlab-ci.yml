@@ -1,3 +1,8 @@
+stages:
+  - publish-lib
+  - publish-api
+  - deploy
+
 include:
   - local: api/ci/ci.yml
   - local: lib/ci/ci.yml
